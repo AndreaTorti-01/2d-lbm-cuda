@@ -1,6 +1,9 @@
 #include <fstream>
 #include <iostream>
 
+#define F(x) f[size * x + index]
+#define NEW_F(x) new_f[size * x + index]
+
 __global__ void calcBoundary(int *boundary, const bool *obstacles, const int width, const int height)
 {
     const int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -66,7 +69,7 @@ __global__ void init(float *f, float *rho, float *ux, float *uy, const int width
 
     for (int i = 0; i < 9; i++)
     {
-        f[size * i + index] = weights[i];
+        F(i) = weights[i];
     }
     rho[index] = 1;
     ux[index] = 0;
@@ -113,102 +116,79 @@ __global__ void step1(const int width, const int height, const int it, const flo
     // top wall
     if (row == 0 && col != 0 && col != width - 1)
     {
-        rho[index] = (f[index] + f[size + index] + f[size * 3 + index] +
-                      2.0 * (f[size * 2 + index] + f[size * 5 + index] + f[size * 6 + index])) /
-                     (1.0 + uy[index]);
-        f[size * 4 + index] = f[size * 2 + index] - 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 7 + index] = f[size * 5 + index] + 0.5 * (f[size + index] - f[size * 3 + index]) -
-                              0.5 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
-        f[size * 8 + index] = f[size * 6 + index] - 0.5 * (f[size + index] - f[size * 3 + index]) +
-                              0.5 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
+        rho[index] = (F(0) + F(1) + F(3) + 2.0 * (F(2) + F(5) + F(6))) / (1.0 + uy[index]);
+        F(4) = F(2) - 2.0 / 3.0 * rho[index] * uy[index];
+        F(7) = F(5) + 0.5 * (F(1) - F(3)) - 0.5 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
+        F(8) = F(6) - 0.5 * (F(1) - F(3)) + 0.5 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
     }
     // right wall
     else if (col == width - 1 && row != 0 && row != height - 1)
     {
         rho[index] = 1;
-        ux[index] = f[index] + f[size * 2 + index] + f[size * 4 + index] +
-                    2.0 * (f[size + index] + f[size * 5 + index] + f[size * 8 + index]) - 1.0;
-        f[size * 3 + index] = f[size + index] - 2.0 / 3.0 * ux[index];
-        f[size * 6 + index] =
-            f[size * 8 + index] - 0.5 * (f[size * 2 + index] - f[size * 4 + index]) - 1.0 / 6.0 * ux[index];
-        f[size * 7 + index] =
-            f[size * 5 + index] + 0.5 * (f[size * 2 + index] - f[size * 4 + index]) - 1.0 / 6.0 * ux[index];
+        ux[index] = F(0) + F(2) + F(4) + 2.0 * (F(1) + F(5) + F(8)) - 1.0;
+        F(3) = F(1) - 2.0 / 3.0 * ux[index];
+        F(6) = F(8) - 0.5 * (F(2) - F(4)) - 1.0 / 6.0 * ux[index];
+        F(7) = F(5) + 0.5 * (F(2) - F(4)) - 1.0 / 6.0 * ux[index];
     }
     // bottom wall
     else if (row == height - 1 && col != 0 && col != width - 1)
     {
-        rho[index] = (f[index] + f[size + index] + f[size * 3 + index] +
-                      2.0 * (f[size * 4 + index] + f[size * 7 + index] + f[size * 8 + index])) /
-                     (1.0 - uy[index]);
-        f[size * 2 + index] = f[size * 4 + index] + 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 5 + index] = f[size * 7 + index] - 0.5 * (f[size + index] - f[size * 3 + index]) +
-                              0.5 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
-        f[size * 6 + index] = f[size * 8 + index] + 0.5 * (f[size + index] - f[size * 3 + index]) -
-                              0.5 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
+        rho[index] = (F(0) + F(1) + F(3) + 2.0 * (F(4) + F(7) + F(8))) / (1.0 - uy[index]);
+        F(2) = F(4) + 2.0 / 3.0 * rho[index] * uy[index];
+        F(5) = F(7) - 0.5 * (F(1) - F(3)) + 0.5 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
+        F(6) = F(8) + 0.5 * (F(1) - F(3)) - 0.5 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
     }
     // left wall
     else if (col == 0 && row != 0 && row != height - 1)
     {
-        rho[index] = (f[index] + f[size * 2 + index] + f[size * 4 + index] +
-                      2.0 * (f[size * 3 + index] + f[size * 7 + index] + f[size * 6 + index])) /
-                     (1.0 - ux[index]);
-        f[size + index] = f[size * 3 + index] + 2.0 / 3.0 * rho[index] * ux[index];
-        f[size * 5 + index] = f[size * 7 + index] - 0.5 * (f[size * 2 + index] - f[size * 4 + index]) +
-                              1.0 / 6.0 * rho[index] * ux[index] + 0.5 * rho[index] * uy[index];
-        f[size * 8 + index] = f[size * 6 + index] + 0.5 * (f[size * 2 + index] - f[size * 4 + index]) +
-                              1.0 / 6.0 * rho[index] * ux[index] - 0.5 * rho[index] * uy[index];
+        rho[index] = (F(0) + F(2) + F(4) + 2.0 * (F(3) + F(7) + F(6))) / (1.0 - ux[index]);
+        F(1) = F(3) + 2.0 / 3.0 * rho[index] * ux[index];
+        F(5) = F(7) - 0.5 * (F(2) - F(4)) + 1.0 / 6.0 * rho[index] * ux[index] + 0.5 * rho[index] * uy[index];
+        F(8) = F(6) + 0.5 * (F(2) - F(4)) + 1.0 / 6.0 * rho[index] * ux[index] - 0.5 * rho[index] * uy[index];
     }
     // top right corner
     else if (row == 0 && col == width - 1)
     {
         rho[index] = rho[index - 1];
-        f[size * 3 + index] = f[size + index] - 2.0 / 3.0 * rho[index] * ux[index];
-        f[size * 4 + index] = f[size * 2 + index] - 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 7 + index] =
-            f[size * 5 + index] - 1.0 / 6.0 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
-        f[size * 8 + index] = 0;
-        f[size * 6 + index] = 0;
-        f[index] = rho[index] - f[size + index] - f[size * 2 + index] - f[size * 3 + index] - f[size * 4 + index] -
-                   f[size * 5 + index] - f[size * 7 + index];
+        F(3) = F(1) - 2.0 / 3.0 * rho[index] * ux[index];
+        F(4) = F(2) - 2.0 / 3.0 * rho[index] * uy[index];
+        F(7) = F(5) - 1.0 / 6.0 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
+        F(8) = 0;
+        F(6) = 0;
+        F(0) = rho[index] - F(1) - F(2) - F(3) - F(4) - F(5) - F(7);
     }
     // bottom right corner
     else if (row == height - 1 && col == width - 1)
     {
         rho[index] = rho[index - 1];
-        f[size * 3 + index] = f[size + index] - 2.0 / 3.0 * rho[index] * ux[index];
-        f[size * 2 + index] = f[size * 4 + index] + 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 6 + index] =
-            f[size * 8 + index] + 1.0 / 6.0 * rho[index] * uy[index] - 1.0 / 6.0 * rho[index] * ux[index];
-        f[size * 7 + index] = 0;
-        f[size * 5 + index] = 0;
-        f[index] = rho[index] - f[size + index] - f[size * 2 + index] - f[size * 3 + index] - f[size * 4 + index] -
-                   f[size * 6 + index] - f[size * 8 + index];
+        F(3) = F(1) - 2.0 / 3.0 * rho[index] * ux[index];
+        F(2) = F(4) + 2.0 / 3.0 * rho[index] * uy[index];
+        F(6) = F(8) + 1.0 / 6.0 * rho[index] * uy[index] - 1.0 / 6.0 * rho[index] * ux[index];
+        F(7) = 0;
+        F(5) = 0;
+        F(0) = rho[index] - F(1) - F(2) - F(3) - F(4) - F(6) - F(8);
     }
     // bottom left corner
     else if (row == height - 1 && col == 0)
     {
         rho[index] = rho[index + 1];
-        f[size + index] = f[size * 3 + index] + 2.0 / 3.0 * rho[index] * ux[index];
-        f[size * 2 + index] = f[size * 4 + index] + 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 5 + index] =
-            f[size * 7 + index] + 1.0 / 6.0 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
-        f[size * 6 + index] = 0;
-        f[size * 8 + index] = 0;
-        f[index] = rho[index] - f[size + index] - f[size * 2 + index] - f[size * 3 + index] - f[size * 4 + index] -
-                   f[size * 5 + index] - f[size * 7 + index];
+        F(1) = F(3) + 2.0 / 3.0 * rho[index] * ux[index];
+        F(2) = F(4) + 2.0 / 3.0 * rho[index] * uy[index];
+        F(5) = F(7) + 1.0 / 6.0 * rho[index] * ux[index] + 1.0 / 6.0 * rho[index] * uy[index];
+        F(6) = 0;
+        F(8) = 0;
+        F(0) = rho[index] - F(1) - F(2) - F(3) - F(4) - F(5) - F(7);
     }
     // top left corner
     else if (row == 0 && col == 0)
     {
         rho[index] = rho[index + 1];
-        f[size + index] = f[size * 3 + index] + 2.0 / 3.0 * rho[index] * ux[index];
-        f[size * 4 + index] = f[size * 2 + index] - 2.0 / 3.0 * rho[index] * uy[index];
-        f[size * 8 + index] =
-            f[size * 6 + index] + 1.0 / 6.0 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
-        f[size * 7 + index] = 0;
-        f[size * 5 + index] = 0;
-        f[index] = rho[index] - f[size + index] - f[size * 2 + index] - f[size * 3 + index] - f[size * 4 + index] -
-                   f[size * 6 + index] - f[size * 8 + index];
+        F(1) = F(3) + 2.0 / 3.0 * rho[index] * ux[index];
+        F(4) = F(2) - 2.0 / 3.0 * rho[index] * uy[index];
+        F(8) = F(6) + 1.0 / 6.0 * rho[index] * ux[index] - 1.0 / 6.0 * rho[index] * uy[index];
+        F(7) = 0;
+        F(5) = 0;
+        F(0) = rho[index] - F(1) - F(2) - F(3) - F(4) - F(6) - F(8);
     }
 
     // update macro
@@ -218,9 +198,9 @@ __global__ void step1(const int width, const int height, const int it, const flo
     uy[index] = 0;
     for (int i = 0; i < 9; i++)
     {
-        rho[index] += f[size * i + index];
-        ux[index] += f[size * i + index] * velocitiesX[i];
-        uy[index] += f[size * i + index] * velocitiesY[i];
+        rho[index] += F(i);
+        ux[index] += F(i) * velocitiesX[i];
+        uy[index] += F(i) * velocitiesY[i];
     }
     ux[index] /= rho[index];
     uy[index] /= rho[index];
@@ -236,48 +216,48 @@ __global__ void step1(const int width, const int height, const int it, const flo
     }
 
     // collision for index 0
-    new_f[index] = (1.0 - om_p) * f[index] + om_p * feq[0];
+    NEW_F(0) = (1.0 - om_p) * F(0) + om_p * feq[0];
 
     // collision for other indices
     for (int i = 1; i < 9; i++)
     {
-        new_f[size * i + index] = (1.0 - sum_param) * f[size * i + index] - sub_param * f[size * opposite[i] + index] +
-                                  sum_param * feq[i] + sub_param * feq[opposite[i]];
+        NEW_F(i) =
+            (1.0 - sum_param) * F(i) - sub_param * F(opposite[i]) + sum_param * feq[i] + sub_param * feq[opposite[i]];
     }
 
     // regular bounce back
 
     if (boundary[index] == 1)
     {
-        f[size * 3 + index] = new_f[size + index];
+        F(3) = NEW_F(1);
     }
     else if (boundary[index] == -1)
     {
-        f[size + index] = new_f[size * 3 + index];
+        F(1) = NEW_F(3);
     }
     if (boundary[size + index] == 1)
     {
-        f[size * 2 + index] = new_f[size * 4 + index];
+        F(2) = NEW_F(4);
     }
     else if (boundary[size + index] == -1)
     {
-        f[size * 4 + index] = new_f[size * 2 + index];
+        F(4) = NEW_F(2);
     }
     if (boundary[size * 2 + index] == 1)
     {
-        f[size * 6 + index] = new_f[size * 8 + index];
+        F(6) = NEW_F(8);
     }
     else if (boundary[size * 2 + index] == -1)
     {
-        f[size * 8 + index] = new_f[size * 6 + index];
+        F(8) = NEW_F(6);
     }
     if (boundary[size * 3 + index] == 1)
     {
-        f[size * 5 + index] = new_f[size * 7 + index];
+        F(5) = NEW_F(7);
     }
     else if (boundary[size * 3 + index] == -1)
     {
-        f[size * 7 + index] = new_f[size * 5 + index];
+        F(7) = NEW_F(5);
     }
 }
 
@@ -296,7 +276,7 @@ __global__ void step2(const int width, const int height, float *f, const float *
     const int velocitiesY[9] = {0, 0, -1, 0, 1, -1, -1, 1, 1};
 
     // stream for index 0
-    f[index] = new_f[index];
+    F(0) = NEW_F(0);
 
     // stream for other indices
     for (int i = 1; i < 9; i++)
@@ -308,7 +288,7 @@ __global__ void step2(const int width, const int height, float *f, const float *
         // stream if new index is not out of bounds or obstacle
         if (new_row >= 0 && new_row < height && new_col >= 0 && new_col < width && !obstacle[new_index])
         {
-            f[size * i + new_index] = new_f[size * i + index];
+            f[size * i + new_index] = NEW_F(i);
         }
     }
 }
