@@ -38,3 +38,18 @@ source env/bin/activate
 pip install -r requirements.txt
 ./run.sh
 ```
+
+
+## Output file format
+Plain text and binary format:
+
+```
+width height
+iteration_count
+[width * height fp32 values]
+iteration_count
+[width * height fp32 values]
+...
+```
+
+Since the floating point values represent the state in a 2D matrix, we have to care about the row-major / column-major (TODO)

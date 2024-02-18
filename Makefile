@@ -20,7 +20,7 @@ output.bin: lbm
 
 
 report: output.bin
-	$(PYTHON) plotting2D.py
+	$(PYTHON) plotting2D.py $^
 
 
 test: output.bin
