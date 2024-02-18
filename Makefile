@@ -6,6 +6,13 @@ lbm: lbm.cu
 	$(NVCC) $^ -o $@
 
 
-report:
-	./lbm
+output.bin: lbm
+	./lbm $@
+
+
+report: output.bin
 	$(PYTHON) plotting2D.py
+
+
+test: output.bin
+	diff reference.bin $^

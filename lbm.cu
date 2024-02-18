@@ -293,12 +293,21 @@ __global__ void step2(const int width, const int height, float *f, const float *
     }
 }
 
-int main()
-{
+
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		std::cerr << "Invalid command line arguments" << std::endl;
+		std::cerr << "Usage: lbm <output filename>"   << std::endl;
+
+		return -1;
+	}
+
+	const char *output_filename = argv[1];
+
     // read input
 
     std::ifstream file_in("input.txt");
-    std::ofstream file_out("output.bin", std::ios::binary);
+    std::ofstream file_out(output_filename, std::ios::binary);
 
     int width, height, max_it, it = 0;
     file_in >> width >> height;
