@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include "lbm.h"
 
 #define F(x) f[size * x + index]
 #define NEW_F(x) new_f[size * x + index]
@@ -334,6 +335,7 @@ int main(int argc, char *argv[]) {
     // allocate memory
 
     float *ux, *uy, *f, *new_f, *rho, *u_out, *u_out_host;
+    int *host_boundary;
     int *boundary;
     bool *obstacles, *host_obstacles;
 
@@ -346,7 +348,9 @@ int main(int argc, char *argv[]) {
     cudaMalloc(&f, width * height * 9 * sizeof(float));
     cudaMalloc(&new_f, width * height * 9 * sizeof(float));
     cudaMalloc(&rho, width * height * sizeof(float));
+
     cudaMalloc(&boundary, width * height * 4 * sizeof(int));
+    cudaMallocHost(&host_boundary, width * height * 4 * sizeof(int));
 
     // read obstacles
 
@@ -363,11 +367,15 @@ int main(int argc, char *argv[]) {
     const dim3 num_blocks(ceil(width / 24.0), ceil(height / 24.0));
 
     cudaMemcpy(obstacles, host_obstacles, width * height * sizeof(bool), cudaMemcpyHostToDevice);
-    cudaFreeHost(host_obstacles);
+    // cudaFreeHost(host_obstacles);
 
     // initialize values and create streams
 
-    calcBoundary<<<num_blocks, threads_per_block>>>(boundary, obstacles, width, height);
+    // calcBoundary<<<num_blocks, threads_per_block>>>(boundary, obstacles, width, height);
+    lbm_calc_boundary(host_boundary, host_obstacles, width, height);
+    cudaMemcpy(boundary, host_boundary, width * height * 4 * sizeof(int), cudaMemcpyHostToDevice);
+
+
     init<<<num_blocks, threads_per_block>>>(f, rho, ux, uy, width, height, obstacles);
     cudaStream_t stream1, stream2;
     cudaStreamCreate(&stream1);

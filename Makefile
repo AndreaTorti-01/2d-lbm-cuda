@@ -1,5 +1,5 @@
 NVCC    = nvcc
-CC      = gcc
+CC      = g++
 CCFLAGS = -Wall -Werror
 PYTHON  = python3.8
 
@@ -7,8 +7,12 @@ PYTHON  = python3.8
 all: lbm lbm_serial
 
 
-lbm: lbm.cu
+lbm: lbm.cu lbm.o
 	$(NVCC) $^ -o $@
+
+
+lbm.o: lbm.c
+	$(CC) -c -o $@ $^
 
 
 lbm_serial: lbm_serial.c
