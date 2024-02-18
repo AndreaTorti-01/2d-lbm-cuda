@@ -392,11 +392,8 @@ int main(int argc, char *argv[]) {
             cudaStreamSynchronize(stream2);
 
             // write results to file
-            file_out << it << '\n';
-            for (int i = 0; i < width * height; i++)
-            {
-                file_out.write(reinterpret_cast<char *>(&u_out_host[i]), sizeof(float));
-            }
+		file_out << it << '\n';
+		file_out.write(reinterpret_cast<char *>(u_out_host), sizeof(float) * width * height);
 
             // print to console
             std::cout << it << '\n';
