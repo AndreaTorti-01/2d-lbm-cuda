@@ -22,7 +22,9 @@ void lbm_calc_boundary(
 
 
 void lbm_step1(
-	  const int it
+	  const int width
+	, const int height
+	, const int it
 	, const float u_in_now
 	, const float om_p
         , const float sum_param
@@ -35,8 +37,6 @@ void lbm_step1(
 	, float u_out[]
 	, const int boundary[]
 	, const bool obstacles[]
-	, const int width
-	, const int height
 );
 
 

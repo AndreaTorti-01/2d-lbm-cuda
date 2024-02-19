@@ -398,9 +398,14 @@ int main(int argc, char *argv[]) {
     {
         const float u_in_now = u_in * (1.0 - std::exp(-static_cast<double>(it * it) / double_square_sigma));
 
-        step1<<<num_blocks, threads_per_block, 0, stream1>>>(width, height, it, u_in_now, omega_plus, sum_param,
-                                                             sub_param, f, new_f, rho, ux, uy, u_out, boundary,
-                                                             obstacles);
+        // step1<<<num_blocks, threads_per_block, 0, stream1>>>(width, height, it, u_in_now, omega_plus, sum_param,
+        //                                                      sub_param, f, new_f, rho, ux, uy, u_out, boundary,
+        //                                                      obstacles);
+	cudaDeviceSynchronize();
+	lbm_step1(width, height, it, u_in_now, omega_plus, sum_param, sub_param, f, new_f, rho, ux, uy, u_out, boundary, obstacles);
+	cudaDeviceSynchronize();
+
+
         cudaStreamSynchronize(stream1);
 
 
