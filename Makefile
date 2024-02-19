@@ -3,12 +3,14 @@ CC      = g++
 CCFLAGS = -Wall -Werror
 PYTHON  = python3.8
 
+CONFIG = -D AB_TESTING
+
 
 all: lbm lbm_serial
 
 
 lbm: lbm.cu lbm.o
-	$(NVCC) $^ -o $@
+	$(NVCC) $(CONFIG) $^ -o $@
 
 
 lbm.o: lbm.c

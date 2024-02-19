@@ -2,14 +2,14 @@
 #define __LBM_H__
 
 
-void lbm_setup(
+void lbm_init(
 	  float f[]
 	, float rho[]
 	, float ux[]
-	, float uy
-	, const bool obstacles[]
+	, float uy[]
 	, const int width
 	, const int height
+	, const bool obstacles[]
 );
 
 

@@ -1,16 +1,49 @@
 #include "lbm.h"
+#include <math.h>
 
 
-void lbm_setup(
+void lbm_init(
 	  float f[]
 	, float rho[]
 	, float ux[]
-	, float uy
-	, const bool obstacles[]
+	, float uy[]
 	, const int width
 	, const int height
+	, const bool obstacles[]
 ) {
+	const int size = width * height;
+	const float weights[9] = {
+		  4.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+	};
 
+
+	for (int row = 0; row < height; ++row) {
+		for (int col = 0; col < width; ++col) {
+			const int index = col + row * width;
+
+			if (obstacles[index]) {
+				ux[index] = NAN;
+				uy[index] = NAN;
+			}
+			else {
+				for (int i = 0; i < 9; ++i) {
+					f[index + size * i] = weights[i];
+				}
+
+				rho[index] = 1;
+				ux[index]  = 0;
+				uy[index]  = 0;
+			}
+		}
+	}
 }
 
 
@@ -50,7 +83,9 @@ void lbm_calc_boundary(
 
 
 void lbm_step1(
-	  const int it
+	  const int width
+	, const int height
+	, const int it
 	, const float u_in_now
 	, const float om_p
         , const float sum_param
@@ -63,10 +98,33 @@ void lbm_step1(
 	, float u_out[]
 	, const int boundary[]
 	, const bool obstacles[]
-	, const int width
-	, const int height
 ) {
+	const int size = width * height;
+	const int velocitiesX[9] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
+	const int velocitiesY[9] = {0, 0, -1, 0, 1, -1, -1, 1, 1};
+	const int opposite[9]    = {0, 3, 4, 1, 2, 7, 8, 5, 6};
+	const float weights[9] = {
+		  4.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 9.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+		, 1.0 / 36.0
+	};
 
+
+	for (int row = 0; row < height; ++row) {
+		for (int col = 0; col < width; ++col) {
+			const int index = row * width + col;
+
+			if(!obstacles[index]) {
+				
+			}
+		}
+	}
 }
 
 

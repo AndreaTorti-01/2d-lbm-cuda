@@ -295,6 +295,11 @@ __global__ void step2(const int width, const int height, float *f, const float *
 }
 
 
+#ifdef AB_TESTING
+	#define cudaMalloc(ptr, size) cudaMallocManaged(ptr, size)
+#endif
+
+
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		std::cerr << "Invalid command line arguments" << std::endl;
@@ -376,7 +381,14 @@ int main(int argc, char *argv[]) {
     cudaMemcpy(boundary, host_boundary, width * height * 4 * sizeof(int), cudaMemcpyHostToDevice);
 
 
-    init<<<num_blocks, threads_per_block>>>(f, rho, ux, uy, width, height, obstacles);
+    // @TODO: sincronizzare le due memorie, poi lanciare il kernel cpu e poi sincronizzo giusto per sicurezza
+    //init<<<num_blocks, threads_per_block>>>(f, rho, ux, uy, width, height, obstacles);
+    cudaDeviceSynchronize();
+    lbm_init(f, rho, ux, uy, width, height, obstacles);
+    cudaDeviceSynchronize();
+
+
+
     cudaStream_t stream1, stream2;
     cudaStreamCreate(&stream1);
     cudaStreamCreate(&stream2);
