@@ -381,7 +381,6 @@ int main(int argc, char *argv[]) {
     cudaMemcpy(boundary, host_boundary, width * height * 4 * sizeof(int), cudaMemcpyHostToDevice);
 
 
-    // @TODO: sincronizzare le due memorie, poi lanciare il kernel cpu e poi sincronizzo giusto per sicurezza
     //init<<<num_blocks, threads_per_block>>>(f, rho, ux, uy, width, height, obstacles);
     cudaDeviceSynchronize();
     lbm_init(f, rho, ux, uy, width, height, obstacles);
@@ -403,7 +402,13 @@ int main(int argc, char *argv[]) {
                                                              sub_param, f, new_f, rho, ux, uy, u_out, boundary,
                                                              obstacles);
         cudaStreamSynchronize(stream1);
-        step2<<<num_blocks, threads_per_block, 0, stream1>>>(width, height, f, new_f, obstacles);
+
+
+        // step2<<<num_blocks, threads_per_block, 0, stream1>>>(width, height, f, new_f, obstacles);
+	cudaDeviceSynchronize();
+	lbm_step2(width, height, f, new_f, obstacles);
+	cudaDeviceSynchronize();
+
 
         if (it % (max_it / 100) == 0)
         {

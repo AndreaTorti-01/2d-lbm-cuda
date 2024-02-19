@@ -129,11 +129,46 @@ void lbm_step1(
 
 
 void lbm_step2(
-	  float f[]
+	  const int width
+	, const int height
+	, float f[]
 	, const float new_f[]
 	, const bool obstacles[]
-	, const int width
-	, const int height
 ) {
 
+	#define F(x) f[size * x + index]
+	#define NEW_F(x) new_f[size * x + index]
+
+
+	const int size = width * height;
+	const int velocitiesX[9] = {0, 1, 0, -1, 0, 1, -1, -1, 1};
+	const int velocitiesY[9] = {0, 0, -1, 0, 1, -1, -1, 1, 1};
+
+
+	for (int row = 0; row < height; ++row) {
+		for (int col = 0; col < width; ++col) {
+			const int index = row * width + col;
+
+			if (!obstacles[index]) {
+				// stream for index 0
+				F(0) = NEW_F(0);
+
+				// stream for other indices
+				for (int i = 1; i < 9; i++) {
+					// obtain new indices
+					const int new_row = row + velocitiesY[i];
+					const int new_col = col + velocitiesX[i];
+					const int new_index = new_row * width + new_col;
+
+					// stream if new index is not out of bounds or obstacle
+					if (new_row >= 0 && new_row < height && new_col >= 0 && new_col < width && !obstacles[new_index]) {
+						f[size * i + new_index] = NEW_F(i);
+					}
+				}
+			}
+		}
+	}
+
+	#undef F
+	#undef NEW_F
 }

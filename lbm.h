@@ -41,11 +41,11 @@ void lbm_step1(
 
 
 void lbm_step2(
-	  float f[]
+	  const int width
+	, const int height
+	, float f[]
 	, const float new_f[]
 	, const bool obstacles[]
-	, const int width
-	, const int height
 );
 
 
