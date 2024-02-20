@@ -1,12 +1,12 @@
 NVCC    = nvcc
 CC      = g++
-CCFLAGS = -Wall -Werror
+CCFLAGS = -Wall
 PYTHON  = python3.8
 
 CONFIG = -D AB_TESTING
 
 
-all: lbm lbm_serial
+all: lbm serial
 
 
 lbm: lbm.cu lbm.o
@@ -14,15 +14,15 @@ lbm: lbm.cu lbm.o
 
 
 lbm.o: lbm.c
-	$(CC) -c -o $@ $^
+	$(CC) -c -o $@ $^ -O2
 
 
-lbm_serial: lbm_serial.c
-	$(CC) $(CCFLAGS) -o $@ $^
+serial: main.c lbm.o
+	$(CC) $(CCFLAGS) -o $@ $^ -lm
 
 
-output.bin: lbm
-	./lbm $@
+output.bin: serial
+	./serial $@
 
 
 report: output.bin
