@@ -1,9 +1,9 @@
-NVCC    = nvcc
-CC      = g++
-CCFLAGS = -Wall
-PYTHON  = python3.8
-
-CONFIG = -D AB_TESTING
+NVCC     = nvcc
+CC       = g++
+CCFLAGS  = -Wall
+OPTFLAGS = -O2 -fopenmp
+PYTHON   = python3.8
+CONFIG   = -D AB_TESTING
 
 
 all: lbm serial
@@ -13,8 +13,8 @@ lbm: lbm.cu lbm.o
 	$(NVCC) $(CONFIG) $^ -o $@
 
 
-lbm.o: lbm.c
-	$(CC) -c -o $@ $^ -O2
+lbm.o: lbm.c lbm.h
+	$(CC) -c -o $@ $< $(OPTFLAGS)
 
 
 serial: main.c lbm.o
@@ -22,7 +22,7 @@ serial: main.c lbm.o
 
 
 output.bin: serial
-	./serial $@
+	./serial input.txt $@
 
 
 report: output.bin

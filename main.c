@@ -12,15 +12,15 @@ void dump_solution(FILE *out, const float solution[], const int it, const int wi
 
 
 int main(int argc, char *argv[]) {
-	if (argc != 2) {
+	if (argc != 3) {
 		fprintf(stderr, "Invalid command line arguments\n");
-		fprintf(stderr, "Usage: lbm_serial <output filename>\n");
+		fprintf(stderr, "Usage: serial <input filename> <output filename>\n");
 
 		return -1;
 	}
 
-	const char *input_filename = "input.txt";
-	const char *output_filename = argv[1];
+	const char *input_filename = argv[1];
+	const char *output_filename = argv[2];
 
 
 	int width, height, max_it;
@@ -35,6 +35,12 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Could not open input file %s\n", input_filename);
 		return 1;
 	}
+
+	if (out == NULL) {
+		fprintf(stderr, "Could not open output file %s\n", output_filename);
+		return 1;
+	}
+
 
 	fscanf(in, "%d %d\n%f %d %f\n", &width, &height, &reynolds, &max_it, &u_in);
 	fprintf(out, "%d %d\n",  width,  height);
