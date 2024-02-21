@@ -133,8 +133,8 @@ void lbm_step1(
 
 				// set parabolic profile inlet
 				if (col == 0) {
-					const float halfDim = static_cast<float>(height - 1) / 2.0;
-					const float temp = static_cast<float>(row / halfDim) - 1.0;
+					const float halfDim = (float)(height - 1) / 2.0;
+					const float temp = (float)(row / halfDim) - 1.0;
 					const float mul = 1.0 - temp * temp;
 
 					ux[index] = u_in_now * mul;

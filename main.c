@@ -39,8 +39,6 @@ int main(int argc, char *argv[]) {
 	fscanf(in, "%d %d\n%f %d %f\n", &width, &height, &reynolds, &max_it, &u_in);
 	fprintf(out, "%d %d\n",  width,  height);
 
-	printf("%d %d\n%f %d %f\n", width, height, reynolds, max_it, u_in);
-
 
 	const float nu = u_in * (float) (height) / reynolds * 2.0 / 3.0;
 	const float tau = 3.0 * nu + 0.5;
@@ -71,20 +69,19 @@ int main(int argc, char *argv[]) {
 
 	memset(obstacles, 0, width * height * sizeof(bool));
 
+
 	int x, y;
 	while (fscanf(in, "%d %d\n", &x, &y) == 2) {
 		obstacles[x + y * width] = true;
 	}
-
 	fclose(in);
 
-	printf("Setup done\n");
 
 	lbm_calc_boundary(boundary, obstacles, width, height);
 	lbm_init(f, rho, ux, uy, width, height, obstacles);
 
 	for (int it = 0; it <= max_it; ++it) {
-		const float u_in_now = u_in * (1.0 - std::exp(-static_cast<double>(it * it) / double_square_sigma));
+		const float u_in_now = u_in * (1.0 - exp(-(it * it) / double_square_sigma));
 
 		lbm_step1(width, height, it, u_in_now, omega_plus, sum_param, sub_param, f, new_f, rho, ux, uy, u_out, boundary, obstacles);
 		lbm_step2(width, height, f, new_f, obstacles);

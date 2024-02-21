@@ -2,6 +2,9 @@
 #define __LBM_H__
 
 
+#include <stdbool.h>
+
+
 void lbm_init(
 	  float f[]
 	, float rho[]
