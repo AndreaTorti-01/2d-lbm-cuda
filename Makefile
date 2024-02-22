@@ -24,7 +24,7 @@ serial: main.c lbm.o
 
 
 output.bin: serial
-	./serial input.txt $@
+	./serial data/input.txt $@
 
 
 report: output.bin
@@ -33,3 +33,8 @@ report: output.bin
 
 test: output.bin
 	$(PYTHON) scripts/compare.py reference.bin $^
+
+
+.PHONY clean:
+clean:
+	rm lbm serial

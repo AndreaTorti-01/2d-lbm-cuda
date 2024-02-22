@@ -43,10 +43,8 @@ Since the floating point values represent the state in a 2D matrix, we have to c
 
 
 ## Discrepancy between serial and CUDA version
-From the A/B testing I found that the `step1` function yields different results for CUDA and serial versions, but I have an hypothesis: this particular function is full of floating point computation and there are many constants (like `1.0` for example). The C compiler promotes the fp32 values to fp64 if an operand of the expression is a fp64, and this is the case for the constants because they are by default fp64. The CUDA compiler might not use fp64 intermediate values since its standard precision is fp32.
+From the A/B testing I found that the `step1` function yields different results for CUDA and serial versions, I suspect that this is due to fp32 to fp64 implicit conversions in the computation. The initial error is in the order of 1e-07 and it grows at a steady pace (expected since the computation a somewhat unstable process). There will be no effort in further studies about this topic.
 
-There are two possible choices:
- 1. Cast all the numeric constants to fp32 in CUDA kernels and reproduce `reference.bin`
- 2. Compare better the output files (using the norm)
 
-Seeing the results of the serial version in python, I'm much more confident that this is only a precision problem.
+## Rendering
+This is the most difficult part of the application, but the concept is very simple: when an iteration of lbm is finished, the `u_out` array is mapped to a texture (we manually have to color the texels) and the texture is rendered by the standard combination of vertex + fragment shaders. Eventually the rendering on texture will be done by compute shaders, substituting the serial lbm code.
