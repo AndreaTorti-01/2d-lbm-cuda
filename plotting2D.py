@@ -3,7 +3,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import time
-import struct
+
+
+def read_binary_file(filename):
+    SIZEOF_FLOAT32 = np.dtype(np.float32).itemsize
+
+    frames = []
+    tags   = []
+
+    with open(filename, 'rb') as f:
+        width, height = [int(x) for x in f.readline().split()]
+
+        line = f.readline()
+        while line:
+            tags.append(int(line))
+
+            buffer = f.read(SIZEOF_FLOAT32 * width * height)
+            frames.append(np.frombuffer(buffer, dtype = np.float32))
+
+            line = f.readline()
+
+        U = np.array(frames).reshape(-1, height, width)
+
+        return (U, tags)
 
 
 if __name__ == "__main__":
@@ -13,41 +35,10 @@ if __name__ == "__main__":
 
 
     filename = sys.argv[1]
+
     
     # create numpy tridimensional array to store velocity moduluses
-    all_U = []
-    all_Steps = []
-    
-    with open(filename, 'rb') as f:
-        # read two integers: width and height of lattice
-        line = f.readline()
-        width, height = [int(x) for x in line.split()]
-        length = width * height
-        
-        i = 0
-        # while line is not empty
-        line = f.readline()
-        while line:
-            step = int(line)  # convert iteration number to integer
-            # read length Ux floats: x-velocities
-
-            # @TODO: this code can be optimized to do only one big read
-            U = []
-            for _ in range(length):
-                data = f.read(4)  # 4 bytes for a float
-                if len(data) != 4:
-                    break
-                float_value = struct.unpack('f', data)[0]
-                U.append(float_value)
-            
-            all_U.append(U)
-            all_Steps.append(step)
-            print(f'Read {i}')
-            i += 1        
-            line = f.readline()
-    
-    # Reshape the 1D list into a 2D array
-    all_U = np.array(all_U).reshape(-1, height, width)
+    all_U, all_Steps = read_binary_file(filename)
     
     # Create the figure and the initial plot
     fig, ax = plt.subplots()
