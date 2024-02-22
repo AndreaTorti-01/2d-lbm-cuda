@@ -2,7 +2,7 @@ NVCC     = nvcc
 CC       = g++
 CCFLAGS  = -Wall
 OPTFLAGS = -O2 -fopenmp
-CONFIG   = -D AB_TESTING
+# CONFIG   = -D AB_TESTING
 
 # @TODO: find the default installed version of python
 PYTHON   = python3.8
