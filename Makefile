@@ -8,7 +8,7 @@ CONFIG   = -D AB_TESTING
 PYTHON   = python3.8
 
 
-all: lbm serial compare
+all: lbm serial
 
 
 lbm: lbm.cu lbm.o
@@ -23,10 +23,6 @@ serial: main.c lbm.o
 	$(CC) $(CCFLAGS) -o $@ $^ -lm
 
 
-compare: compare.c
-	$(CC) $(CCFLAGS) -o $@ $^ -lm
-
-
 output.bin: serial
 	./serial input.txt $@
 
@@ -35,5 +31,5 @@ report: output.bin
 	$(PYTHON) plotting2D.py $^
 
 
-test: output.bin compare
-	./compare reference.bin output.bin
+test: output.bin
+	$(PYTHON) compare.py reference.bin $^
