@@ -42,8 +42,8 @@ if __name__ == "__main__":
     
     # Create the figure and the initial plot
     fig, ax = plt.subplots()
-    im = ax.imshow(all_U[0], origin='upper', cmap='plasma', vmin=0, vmax=0.3, interpolation='lanczos')
-    cbar = fig.colorbar(im)
+    im = ax.imshow(all_U[0], origin='upper', cmap='viridis', vmin=0, vmax=0.3, interpolation='lanczos')
+    # cbar = fig.colorbar(im)
     title = ax.set_title(f'Step {all_Steps[0]}')
     plt.tight_layout()
     

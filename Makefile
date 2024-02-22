@@ -28,8 +28,8 @@ output.bin: serial
 
 
 report: output.bin
-	$(PYTHON) plotting2D.py $^
+	$(PYTHON) scripts/plotting2D.py $^
 
 
 test: output.bin
-	$(PYTHON) compare.py reference.bin $^
+	$(PYTHON) scripts/compare.py reference.bin $^
