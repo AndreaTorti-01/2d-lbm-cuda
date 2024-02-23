@@ -1,18 +1,12 @@
-NVCC     = nvcc
 CC       = g++
 CCFLAGS  = -Wall
 OPTFLAGS = -O2 -fopenmp
-# CONFIG   = -D AB_TESTING
 
 # @TODO: find the default installed version of python
 PYTHON   = python3.8
 
 
-all: lbm serial
-
-
-lbm: lbm.cu lbm.o
-	$(NVCC) $(CONFIG) $^ -o $@
+all: serial
 
 
 lbm.o: lbm.c lbm.h
@@ -32,9 +26,9 @@ report: output.bin
 
 
 test: output.bin
-	$(PYTHON) scripts/compare.py reference.bin $^
+	$(PYTHON) scripts/compare.py cuda/reference.bin $^
 
 
 .PHONY clean:
 clean:
-	rm lbm serial
+	rm -f lbm serial
