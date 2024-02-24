@@ -1,4 +1,4 @@
-CC       = g++
+CC       = gcc
 CCFLAGS  = -Wall
 OPTFLAGS = -O2 -fopenmp
 
@@ -27,6 +27,11 @@ report: output.bin
 
 test: output.bin
 	$(PYTHON) scripts/compare.py cuda/reference.bin $^
+
+
+.PHONY folder:
+folder:
+	mkdir -p build
 
 
 .PHONY clean:

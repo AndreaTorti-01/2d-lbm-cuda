@@ -19,12 +19,9 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+
 	const char *input_filename = argv[1];
 	const char *output_filename = argv[2];
-
-
-	int width, height, max_it;
-	float reynolds, u_in;
 
 
 	FILE *in  = fopen(input_filename,  "r");
@@ -42,49 +39,9 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	fscanf(in, "%d %d\n%f %d %f\n", &width, &height, &reynolds, &max_it, &u_in);
-	fprintf(out, "%d %d\n",  width,  height);
+	lbm_setup(in);
+	fprintf(out, "%d %d\n", width, height);
 
-
-	const float nu = u_in * (float) (height) / reynolds * 2.0 / 3.0;
-	const float tau = 3.0 * nu + 0.5;
-	const float sigma = ceil(10.0 * height);
-	const float double_square_sigma = 2.0 * sigma * sigma;
-	const float lambda_trt = 1.0 / 4.0;
-	const float tau_minus = lambda_trt / (tau - 0.5) + 0.5;
-	const float omega_plus = 1.0 / tau;
-	const float omega_minus = 1.0 / tau_minus;
-	const float sub_param = 0.5 * (omega_plus - omega_minus);
-	const float sum_param = 0.5 * (omega_plus + omega_minus);
-
-
-	float *ux, *uy, *f, *new_f, *rho, *u_out;
-	int *boundary;
-	bool *obstacles;
-
-
-	obstacles = (bool  *) malloc(width * height * sizeof(bool));
-	ux        = (float *) malloc(width * height * sizeof(float));
-	uy        = (float *) malloc(width * height * sizeof(float));
-	u_out     = (float *) malloc(width * height * sizeof(float));
-	rho       = (float *) malloc(width * height * sizeof(float));
-	f         = (float *) malloc(9 * width * height * sizeof(float));
-	new_f     = (float *) malloc(9 * width * height * sizeof(float));
-	boundary  = (int   *) malloc(4 * width * height * sizeof(int));
-
-
-	memset(obstacles, 0, width * height * sizeof(bool));
-
-
-	int x, y;
-	while (fscanf(in, "%d %d\n", &x, &y) == 2) {
-		obstacles[x + y * width] = true;
-	}
-	fclose(in);
-
-
-	lbm_calc_boundary(boundary, obstacles, width, height);
-	lbm_init(f, rho, ux, uy, width, height, obstacles);
 
 	for (int it = 0; it <= max_it; ++it) {
 		const float u_in_now = u_in * (1.0 - exp(-(it * it) / double_square_sigma));
@@ -98,6 +55,7 @@ int main(int argc, char *argv[]) {
 
 		printf("it %d\n", it);
 	}
+
 
 	return 0;
 }

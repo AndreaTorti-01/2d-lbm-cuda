@@ -1,5 +1,47 @@
 #include "lbm.h"
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
+
+
+void lbm_setup(FILE *in) {
+	int read = fscanf(in, "%d %d\n%f %d %f\n", &width, &height, &reynolds, &max_it, &u_in);
+	(void) read;
+
+
+	nu = u_in * (float) (height) / reynolds * 2.0 / 3.0;
+	tau = 3.0 * nu + 0.5;
+	sigma = ceil(10.0 * height);
+	double_square_sigma = 2.0 * sigma * sigma;
+	lambda_trt = 1.0 / 4.0;
+	tau_minus = lambda_trt / (tau - 0.5) + 0.5;
+	omega_plus = 1.0 / tau;
+	omega_minus = 1.0 / tau_minus;
+	sub_param = 0.5 * (omega_plus - omega_minus);
+	sum_param = 0.5 * (omega_plus + omega_minus);
+
+
+	obstacles = (bool  *) malloc(width * height * sizeof(bool));
+	ux        = (float *) malloc(width * height * sizeof(float));
+	uy        = (float *) malloc(width * height * sizeof(float));
+	u_out     = (float *) malloc(width * height * sizeof(float));
+	rho       = (float *) malloc(width * height * sizeof(float));
+	f         = (float *) malloc(9 * width * height * sizeof(float));
+	new_f     = (float *) malloc(9 * width * height * sizeof(float));
+	boundary  = (int   *) malloc(4 * width * height * sizeof(int));
+
+
+	int x, y;
+	memset(obstacles, 0, width * height * sizeof(bool));
+	while (fscanf(in, "%d %d\n", &x, &y) == 2) {
+		obstacles[x + y * width] = true;
+	}
+	fclose(in);
+
+
+	lbm_calc_boundary(boundary, obstacles, width, height);
+	lbm_init(f, rho, ux, uy, width, height, obstacles);
+}
 
 
 void lbm_init(

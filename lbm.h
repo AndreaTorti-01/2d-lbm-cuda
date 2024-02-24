@@ -2,7 +2,42 @@
 #define __LBM_H__
 
 
+#include <stdio.h>
 #include <stdbool.h>
+
+
+int width,
+    height,
+    max_it;
+
+
+float reynolds,
+      u_in;
+
+
+float nu,
+      tau,
+      sigma,
+      double_square_sigma,
+      lambda_trt,
+      tau_minus,
+      omega_plus,
+      omega_minus,
+      sub_param,
+      sum_param;
+
+
+int *boundary;
+bool *obstacles;
+float *ux,
+      *uy,
+      *f,
+      *new_f,
+      *rho,
+      *u_out;
+
+
+void lbm_setup(FILE *in);
 
 
 void lbm_init(
