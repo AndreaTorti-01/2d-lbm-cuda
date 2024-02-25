@@ -3,6 +3,8 @@
 #include <math.h>
 #include <string.h>
 #include "lbm.h"
+#include "window.h"
+#include "experiment.h"
 
 
 int main(int argc, char *argv[]) {
@@ -37,16 +39,32 @@ int main(int argc, char *argv[]) {
 	fprintf(out, "%d %d\n", width, height);
 
 
-	for (int it = 0; it <= max_it; ++it) {
-		lbm_step(it);
+	int window_width = 800;
+	int window_height = 600;
 
-		if (it % (max_it / 100) == 0) {
-			lbm_dump_solution(out, it);
-		}
-
-		printf("it %d\n", it);
+	if (window_init("lbm on opengl", window_width, window_height) != 0) {
+		window_close();
+		exit(EXIT_FAILURE);
 	}
 
+	experiment_init(window_width, window_height);
+	window_set_callbacks();
+
+	int it = 0;
+	while (!window_should_close()) {
+		experiment_render();
+
+		for (int comp_step = 0; comp_step < 5; ++comp_step) {
+			lbm_step(it);
+			++it;
+		}
+
+		window_swap_buffers();
+		window_poll_events();
+	}
+
+	window_close();
+	fclose(out);
 
 	return 0;
 }
