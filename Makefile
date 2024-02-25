@@ -2,7 +2,7 @@ CC       = gcc
 CCFLAGS  = -Wall
 OPTFLAGS = -O2 -fopenmp
 INCLUDE  = -I ./include
-LIBS     = -lm
+LIBS     = -lm -lglfw -lEGL -lGL
 
 # @TODO: find the default installed version of python
 PYTHON   = python3.8
