@@ -5,12 +5,6 @@
 #include "lbm.h"
 
 
-void dump_solution(FILE *out, const float solution[], const int it, const int width, const int height) {
-	fprintf(out, "%d\n", it);
-	fwrite(solution, sizeof(float), width * height, out);
-}
-
-
 int main(int argc, char *argv[]) {
 	if (argc != 3) {
 		fprintf(stderr, "Invalid command line arguments\n");
@@ -50,7 +44,7 @@ int main(int argc, char *argv[]) {
 		lbm_step2(width, height, f, new_f, obstacles);
 
 		if (it % (max_it / 100) == 0) {
-			dump_solution(out, u_out, it, width, height);
+			lbm_dump_solution(out, it);
 		}
 
 		printf("it %d\n", it);

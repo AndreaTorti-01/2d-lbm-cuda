@@ -362,3 +362,9 @@ void lbm_step2(
 	#undef F
 	#undef NEW_F
 }
+
+
+void lbm_dump_solution(FILE *out, int it) {
+	fprintf(out, "%d\n", it);
+	fwrite(u_out, sizeof(float), width * height, out);
+}

@@ -87,4 +87,7 @@ void lbm_step2(
 );
 
 
+void lbm_dump_solution(FILE *out, int it);
+
+
 #endif
