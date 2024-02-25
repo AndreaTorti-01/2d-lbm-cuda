@@ -57,6 +57,33 @@ GLchar fragment_shader_src[] = R"(
 )";
 
 
+static float colormap_red(float x) {
+    return 4.04377880184332E+00 * x - 5.17956989247312E+02;
+}
+
+
+static float colormap_green(float x) {
+    if (x < (5.14022177419355E+02 + 1.13519230769231E+01) / (4.20313644688645E+00 + 4.04233870967742E+00)) {
+        return 4.20313644688645E+00 * x - 1.13519230769231E+01;
+    } else {
+        return -4.04233870967742E+00 * x + 5.14022177419355E+02;
+    }
+}
+
+
+static float colormap_blue(float x) {
+    if (x < 1.34071303331385E+01 / (4.25125657510228E+00 - 1.0)) { // 4.12367649967
+        return x;
+    } else if (x < (255.0 + 1.34071303331385E+01) / 4.25125657510228E+00) { // 63.1359518278
+        return 4.25125657510228E+00 * x - 1.34071303331385E+01;
+    } else if (x < (1.04455240613432E+03 - 255.0) / 4.11010047593866E+00) { // 192.100512082
+        return 255.0;
+    } else {
+        return -4.11010047593866E+00 * x + 1.04455240613432E+03;
+    }
+}
+
+
 // suppose to know the u_out variable and the obstacles variable
 void experiment_populate_texture() {
 	// dummy texture generation
@@ -71,12 +98,11 @@ void experiment_populate_texture() {
 			}
 			else {
 				// assuming u_out is in [0, 0.3]
-				const float u = u_out[row * width + col];
-				unsigned char color = (unsigned char) floor((u / 0.3f) * 255.0);
+				const float u = 255.0f * u_out[row * width + col] / 0.3;
 
-				base[0] = color;
-				base[1] = color;
-				base[2] = 20;
+				base[0] = (unsigned char) floor(colormap_red(u));
+				base[1] = (unsigned char) floor(colormap_green(u));
+				base[2] = (unsigned char) floor(colormap_blue(u));
 			}
 		}
 	}

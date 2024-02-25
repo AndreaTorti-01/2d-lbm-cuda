@@ -21,23 +21,19 @@ all: serial
 
 
 serial: $(targets)
-	$(CC) $(CCFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(CCFLAGS) $(OPTFLAGS) -o $@ $^ $(LIBS)
 
 
 build/%.o: src/%.c
-	$(CC) -c $(INCLUDE) $(CCFLAGS) -o $@ $^
+	$(CC) -c $(INCLUDE) $(CCFLAGS) $(OPTFLAGS) -o $@ $^
 
 
 output.bin: serial
 	./serial data/input.txt $@
 
 
-report: output.bin
-	$(PYTHON) scripts/plotting2D.py $^
-
-
-test: output.bin
-	$(PYTHON) scripts/compare.py cuda/reference.bin $^
+run: serial
+	./serial data/input.txt output.bin
 
 
 .PHONY folder:

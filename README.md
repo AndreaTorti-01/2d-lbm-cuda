@@ -22,9 +22,13 @@ This fork is an exercise in software development:
  7. Think about the rendering part
 
 
+## Dependencies
+ * opengl es 2.0 (will eventually be ported to opengl 4.6)
+ * glfw (libglfw-dev)
+
+
 ## Usage
-`make report` for computing and visualizing the lbm experiment
-`make test` for comparing the serial and CUDA implementations
+`make run`
 
 
 ## Output file format
