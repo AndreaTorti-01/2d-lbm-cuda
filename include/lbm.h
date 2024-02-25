@@ -6,38 +6,6 @@
 #include <stdbool.h>
 
 
-// @TODO: move this variables in the lbm.c file and make them static
-int width,
-    height,
-    max_it;
-
-
-float reynolds,
-      u_in;
-
-
-float nu,
-      tau,
-      sigma,
-      double_square_sigma,
-      lambda_trt,
-      tau_minus,
-      omega_plus,
-      omega_minus,
-      sub_param,
-      sum_param;
-
-
-int *boundary;
-bool *obstacles;
-float *ux,
-      *uy,
-      *f,
-      *new_f,
-      *rho,
-      *u_out;
-
-
 void lbm_init(
 	  float f[]
 	, float rho[]
@@ -58,6 +26,7 @@ void lbm_calc_boundary(
 
 
 void lbm_setup(FILE *in);
+void lbm_hotfix_variables(int *external_width, int *external_height, float **external_u_out, bool **external_obstacles);
 void lbm_step(int it);
 void lbm_dump_solution(FILE *out, int it);
 

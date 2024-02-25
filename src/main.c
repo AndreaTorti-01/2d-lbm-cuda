@@ -36,7 +36,6 @@ int main(int argc, char *argv[]) {
 
 
 	lbm_setup(in);
-	fprintf(out, "%d %d\n", width, height);
 
 
 	int window_width = 800;
