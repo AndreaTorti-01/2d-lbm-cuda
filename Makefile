@@ -1,20 +1,31 @@
 CC       = gcc
 CCFLAGS  = -Wall
 OPTFLAGS = -O2 -fopenmp
+INCLUDE  = -I ./include
+LIBS     = -lm
 
 # @TODO: find the default installed version of python
 PYTHON   = python3.8
 
 
+sources  = $(wildcard src/*.c)
+examples = $(wildcard examples/*.c)
+
+objects  = $(patsubst src/%.c,build/%.o,$(sources))
+
+targets  += $(patsubst %.c,build/%,$(examples))
+targets  += $(objects)
+
+
 all: serial
 
 
-lbm.o: lbm.c lbm.h
-	$(CC) -c -o $@ $< $(OPTFLAGS)
+serial: $(targets)
+	$(CC) $(CCFLAGS) -o $@ $^ $(LIBS)
 
 
-serial: main.c lbm.o
-	$(CC) $(CCFLAGS) -o $@ $^ -lm
+build/%.o: src/%.c
+	$(CC) -c $(INCLUDE) $(CCFLAGS) -o $@ $^
 
 
 output.bin: serial
@@ -36,4 +47,4 @@ folder:
 
 .PHONY clean:
 clean:
-	rm -f lbm serial
+	rm -f $(targets) serial output.bin
