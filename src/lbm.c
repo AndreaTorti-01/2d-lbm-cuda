@@ -4,16 +4,16 @@
 #include <math.h>
 
 
-static int width,
+ int width,
 	   height,
 	   max_it;
 
 
-static float reynolds,
+ float reynolds,
 	     u_in;
 
 
-static float nu,
+ float nu,
 	     tau,
 	     sigma,
 	     double_square_sigma,
@@ -25,22 +25,14 @@ static float nu,
 	     sum_param;
 
 
-static int *boundary;
-static bool *obstacles;
-static float *ux,
+ int *boundary;
+ bool *obstacles;
+ float *ux,
 	     *uy,
 	     *f,
 	     *new_f,
 	     *rho,
 	     *u_out;
-
-
-void lbm_hotfix_variables(int *external_width, int *external_height, float **external_u_out, bool **external_obstacles) {
-	*external_width = width;
-	*external_height = height;
-	*external_u_out = u_out;
-	*external_obstacles = obstacles;
-}
 
 
 // @TODO: add static attribute to internally used functions

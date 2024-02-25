@@ -8,13 +8,6 @@
 #include <stdbool.h>
 
 
-// hotfix
-static int width;
-static int height;
-static float *u_out;
-static bool *obstacles;
-
-
 GLuint texture;
 GLint program;
 unsigned char *texture_buffer;
@@ -124,8 +117,6 @@ void experiment_populate_texture() {
 
 // to be called after initializing lbm
 void experiment_init(int width, int height) {
-	lbm_hotfix_variables(&width, &height, &u_out, &obstacles);
-
 	program = program_load(vertex_shader_src, fragment_shader_src);
 
 	glBindAttribLocation(program, 0, "position");
