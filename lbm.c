@@ -4,6 +4,8 @@
 #include <math.h>
 
 
+// @TODO: add static attribute to internally used functions
+// @TODO: add function signatures here
 void lbm_setup(FILE *in) {
 	int read = fscanf(in, "%d %d\n%f %d %f\n", &width, &height, &reynolds, &max_it, &u_in);
 	(void) read;
@@ -124,7 +126,7 @@ void lbm_calc_boundary(
 }
 
 
-void lbm_step1(
+void lbm_substep1(
 	  const int width
 	, const int height
 	, const int it
@@ -319,7 +321,7 @@ void lbm_step1(
 }
 
 
-void lbm_step2(
+void lbm_substep2(
 		const int width
 		, const int height
 		, float f[]
@@ -361,6 +363,14 @@ void lbm_step2(
 
 	#undef F
 	#undef NEW_F
+}
+
+
+void lbm_step(int it) {
+	const float u_in_now = u_in * (1.0 - exp(-(it * it) / double_square_sigma));
+
+	lbm_substep1(width, height, it, u_in_now, omega_plus, sum_param, sub_param, f, new_f, rho, ux, uy, u_out, boundary, obstacles);
+	lbm_substep2(width, height, f, new_f, obstacles);
 }
 
 

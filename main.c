@@ -38,10 +38,7 @@ int main(int argc, char *argv[]) {
 
 
 	for (int it = 0; it <= max_it; ++it) {
-		const float u_in_now = u_in * (1.0 - exp(-(it * it) / double_square_sigma));
-
-		lbm_step1(width, height, it, u_in_now, omega_plus, sum_param, sub_param, f, new_f, rho, ux, uy, u_out, boundary, obstacles);
-		lbm_step2(width, height, f, new_f, obstacles);
+		lbm_step(it);
 
 		if (it % (max_it / 100) == 0) {
 			lbm_dump_solution(out, it);
