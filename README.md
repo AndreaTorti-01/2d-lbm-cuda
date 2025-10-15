@@ -1,4 +1,6 @@
-# 2d-lbm-cuda
+# Lattice Boltzmann Method CFD CUDA Implementation
+
+This project is derived from https://github.com/AndreaTorti-01/Lattice-Boltzmann-Method, refer to that for more information
 
 ## Usage
 
